@@ -13,9 +13,11 @@ const Output = ({ editorRef, language }) => {
     if (!sourceCode) return;
     try {
       setIsLoading(true);
-      const { run: result } = await executeCode(language, sourceCode);
-      setOutput(result.output.split("\n"));
-      result.stderr ? setIsError(true) : setIsError(false);
+      const { output } = await executeCode(language, sourceCode);
+      setOutput(output.split("\n"));
+      // check for output error code
+      setIsError(false)
+      // data.stderr ? setIsError(true) : setIsError(false);
     } catch (error) {
       console.log(error);
       toast({

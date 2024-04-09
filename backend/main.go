@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/SanjaySinghRajpoot/realCode/config"
 	"github.com/SanjaySinghRajpoot/realCode/controller"
 	"github.com/gin-gonic/gin"
 )
@@ -28,6 +29,10 @@ func CORS() gin.HandlerFunc {
 }
 
 func main() {
+
+	// connect to DB
+	config.ConnectDB()
+
 	router := gin.Default()
 
 	router.Use(CORS())

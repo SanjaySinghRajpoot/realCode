@@ -22,7 +22,15 @@ func CompileHandler(c *gin.Context) {
 	// Check what is the language of the code and call the appropitrate service
 	var outputResult string
 	if request.Language == "python" {
-		output, err := utils.CompileCode(request.Code)
+		output, err := utils.CompileCodePython(request.Code)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		outputResult = output
+	} else if request.Language == "golang" {
+		output, err := utils.CompileCodeGo(request.Code)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

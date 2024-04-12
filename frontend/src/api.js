@@ -1,8 +1,10 @@
 import axios from "axios";
 import { LANGUAGE_VERSIONS } from "./constants";
 
+console.log(process.env.BACKEND_URL)
+
 const API = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: process.env.BACKEND_URL,
 });
 
 export const executeCode = async (language, sourceCode) => {

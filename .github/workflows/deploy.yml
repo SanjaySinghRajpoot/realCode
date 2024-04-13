@@ -63,13 +63,13 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: example-node-app
           IMAGE_TAG: latest
-        with:
-          context: .
+        working-directory: .
+        # with:
+          # context: .
         run: |-
           REPOSITORY=$(echo $REPOSITORY | tr '[:upper:]' '[:lower:]')
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-        working-directory: .
       - name: Deploy docker image to EC2
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}

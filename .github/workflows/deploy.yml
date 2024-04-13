@@ -62,9 +62,8 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: example-node-app
-          IMAGE_TAG: ${{ github.sha }}
-        run: |-
-          REPOSITORY=$(echo $REGISTRY/$GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]' | sed 's/\(.*\)\/\(.*\)/\2/')
+          IMAGE_TAG: latest
+        run: |
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
         working-directory: .

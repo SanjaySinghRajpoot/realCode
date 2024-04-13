@@ -63,9 +63,10 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: example-node-app
           IMAGE_TAG: latest
-        working-directory: .
-        # with:
-          # context: .
+        # working-directory: .
+        with:
+          context: ./
+          file: "./Dockerfile"
         run: |-
           REPOSITORY=$(echo $REPOSITORY | tr '[:upper:]' '[:lower:]')
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .

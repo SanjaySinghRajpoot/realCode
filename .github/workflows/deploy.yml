@@ -65,7 +65,7 @@ jobs:
           IMAGE_TAG: latest
         with:
           context: .
-        run: |
+        run: |-
            REPOSITORY=$(echo $REPOSITORY | tr '[:upper:]' '[:lower:]')
            docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG

@@ -63,15 +63,11 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: example-node-app
           IMAGE_TAG: latest
-        # working-directory: .
-        with:
-          context: .
-          tags: $REGISTRY/$REPOSITORY:$IMAGE_TAG
-        uses: docker/build-push-action@v5
-        # run: |-
-        #   REPOSITORY=$(echo $REPOSITORY | tr '[:upper:]' '[:lower:]')
-        #   docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-        #   docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+        working-directory: .
+        run: |
+          TAG=$REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker build -t $TAG .
+          docker push $TAG
       - name: Deploy docker image to EC2
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}

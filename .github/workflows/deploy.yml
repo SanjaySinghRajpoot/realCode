@@ -20,14 +20,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_wrapper: false
+      
       - name: Terraform init
         id: init
         run: terraform init -backend-config="bucket=$TF_STATE_BUCKET_NAME" -backend-config="region=ap-south-1"
         working-directory: ./terraform
+      
       - name: Terraform Plan
         id: plan
         run: |-
@@ -76,7 +79,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: example-node-app
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: latest
           AWS_DEFAULT_REGION: ap-south-1
         uses: appleboy/ssh-action@master
         with:
@@ -91,5 +94,5 @@ jobs:
             sudo $(aws ecr get-login --no-include-email --region ap-south-1);
             sudo docker stop myappcontainer || true
             sudo docker rm myappcontainer || true
-            sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
-            sudo docker run -d --name myappcontainer -p 80:8080 $REGISTRY/$REPOSITORY:$IMAGE_TAG
+            sudo docker pull ${{ steps.login-ecr.outputs.registry }}/example-node-app:latest
+            sudo docker run -d --name myappcontainer -p 80:8080 ${{ steps.login-ecr.outputs.registry }}/example-node-app:latest

@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"fmt"
 	"os/exec"
 )
 
@@ -12,7 +13,8 @@ func CompileCodePython(code string) (string, error) {
 	cmd.Stdout = &out
 	err := cmd.Run()
 	if err != nil {
-		return "", err
+		errRes := fmt.Sprintf("error: %s", err.Error())
+		return errRes, err
 	}
 	return out.String(), nil
 }

@@ -1,10 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
-	"github.com/SanjaySinghRajpoot/realCode/config"
 	"github.com/SanjaySinghRajpoot/realCode/controller"
+	"github.com/SanjaySinghRajpoot/realCode/utils/kafka"
 	"github.com/gin-gonic/gin"
 )
 
@@ -31,7 +32,15 @@ func CORS() gin.HandlerFunc {
 func main() {
 
 	// connect to DB
-	config.ConnectDB()
+	// config.ConnectDB()
+
+	var err error
+	kafka.KafkaProducer, err = kafka.InitializeProducer()
+
+	if err != nil {
+		fmt.Printf("Failed to create producer: %s\n", err.Error())
+		return
+	}
 
 	router := gin.Default()
 

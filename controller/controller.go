@@ -1,9 +1,12 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/SanjaySinghRajpoot/realCode/utils"
+	"github.com/SanjaySinghRajpoot/realCode/utils/formatError"
+	"github.com/SanjaySinghRajpoot/realCode/utils/kafka"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,14 +25,24 @@ func CompileHandler(c *gin.Context) {
 	// Check what is the language of the code and call the appropitrate service
 	var outputResult string
 	if request.Language == "python" {
-		output, err := utils.CompileCodePython(request.Code)
+
+		msg, err := kafka.Producer("python", request, kafka.KafkaProducer)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			fmt.Println(msg)
+			formatError.InternalServerError(c, err)
 			return
 		}
 
-		outputResult = output
+		outputResult = msg
 	} else if request.Language == "golang" {
+
+		msg, err := kafka.Producer("golang", request, kafka.KafkaProducer)
+		if err != nil {
+			fmt.Println(msg)
+			formatError.InternalServerError(c, err)
+			return
+		}
+
 		output, err := utils.CompileCodeGo(request.Code)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

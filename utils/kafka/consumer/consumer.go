@@ -41,7 +41,7 @@ func main() {
 	defer consumer.Close()
 
 	// Subscribe to a topics
-	topics := []string{PYTHON}
+	topics := []string{PYTHON, GOLANG}
 	consumer.SubscribeTopics(topics, nil)
 
 	// Handle messages and shutdown signals
@@ -87,7 +87,7 @@ func main() {
 						fmt.Println(err)
 					}
 					fmt.Println(codeResult)
-					// sendResponse(GOLANG, codeResult, getCodeCorrelationID(e.Headers), producer)
+					sendResponse(GOLANG, codeResult, getCodeCorrelationID(e.Headers), producer)
 				}
 
 				// Send the response back to the producer
@@ -140,12 +140,12 @@ func sendResponse(topic string, codeResult, correlationID string, producer *kafk
 		log.Fatal(err)
 	}
 
-	ResTopic := "pythonsec"
+	resTopic := topic + "sec"
 
 	// Produce the response message
 	deliveryChan := make(chan kafka.Event)
 	err = producer.Produce(&kafka.Message{
-		TopicPartition: kafka.TopicPartition{Topic: &ResTopic, Partition: kafka.PartitionAny},
+		TopicPartition: kafka.TopicPartition{Topic: &resTopic, Partition: kafka.PartitionAny},
 		Value:          responseBytes,
 		Headers: []kafka.Header{
 			{Key: "correlation-id", Value: []byte(correlationID)},

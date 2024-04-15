@@ -74,7 +74,7 @@ func Producer(Topic string, post models.CodeRunner, producer *kafka.Producer) (s
 	defer consumer.Close()
 
 	// Subscribe to a topics
-	topics := []string{"pythonsec"}
+	topics := []string{"pythonsec", "golangsec"}
 	consumer.SubscribeTopics(topics, nil)
 
 	// Handle messages and shutdown signals

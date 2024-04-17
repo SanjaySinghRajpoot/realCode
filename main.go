@@ -5,7 +5,9 @@ import (
 	"net/http"
 
 	"github.com/SanjaySinghRajpoot/realCode/controller"
+	"github.com/SanjaySinghRajpoot/realCode/middleware"
 	"github.com/SanjaySinghRajpoot/realCode/utils/kafka"
+	"github.com/SanjaySinghRajpoot/realCode/utils/redis"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,6 +36,11 @@ func main() {
 	// connect to DB
 	// config.ConnectDB()
 
+	password := "12345678"
+
+	// Redis Cache Setup
+	redis.RedisClient = redis.SetUpRedis(password)
+
 	var err error
 	kafka.KafkaProducer, err = kafka.InitializeProducer()
 
@@ -46,9 +53,11 @@ func main() {
 
 	router.Use(CORS())
 
+	// router.Use(middleware.RateLimiter)
+
 	router.GET("/", HomepageHandler)
 
-	router.POST("/compile", controller.CompileHandler)
+	router.POST("/compile", middleware.RateLimiter, controller.CompileHandler)
 	router.Run(":8080")
 
 }

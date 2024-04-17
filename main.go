@@ -53,8 +53,6 @@ func main() {
 
 	router.Use(CORS())
 
-	// router.Use(middleware.RateLimiter)
-
 	router.GET("/", HomepageHandler)
 
 	router.POST("/compile", middleware.RateLimiter, controller.CompileHandler)

@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -77,6 +78,8 @@ func Producer(Topic string, post models.CodeRunner, producer *kafka.Producer) (s
 	topics := []string{"pythonsec", "golangsec"}
 	consumer.SubscribeTopics(topics, nil)
 
+	createTopics(context.Background(), topics, config)
+
 	// Handle messages and shutdown signals
 	sigchan := make(chan os.Signal, 1)
 	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
@@ -146,4 +149,34 @@ func getCorrelationID(headers []kafka.Header) string {
 		}
 	}
 	return ""
+}
+
+func createTopics(ctx context.Context, topics []string, config *kafka.ConfigMap) {
+
+	adminClient, err := kafka.NewAdminClient(config)
+	if err != nil {
+		panic(err)
+	}
+	defer adminClient.Close()
+
+	topicSpecs := make([]kafka.TopicSpecification, len(topics))
+	for i, topic := range topics {
+		topicSpecs[i] = kafka.TopicSpecification{
+			Topic:             topic,
+			NumPartitions:     1,
+			ReplicationFactor: 1,
+		}
+	}
+
+	results, err := adminClient.CreateTopics(ctx, topicSpecs, kafka.SetAdminOperationTimeout(5000))
+	if err != nil {
+		panic(err)
+	}
+
+	// Check if the topic creation was successful
+	for _, result := range results {
+		if result.Error.Code() != kafka.ErrNoError && result.Error.Code() != kafka.ErrTopicAlreadyExists {
+			panic(result.Error)
+		}
+	}
 }

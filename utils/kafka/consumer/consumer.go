@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -25,6 +26,8 @@ func main() {
 		"group.id":          "my-group",
 		"auto.offset.reset": "earliest",
 	}
+
+	createTopics(context.Background(), []string{PYTHON, GOLANG}, config)
 
 	producer, err := InitializeProducer()
 
@@ -176,4 +179,34 @@ func sendResponse(topic string, codeResult, correlationID string, producer *kafk
 		println(fls)
 	}
 
+}
+
+func createTopics(ctx context.Context, topics []string, config *kafka.ConfigMap) {
+
+	adminClient, err := kafka.NewAdminClient(config)
+	if err != nil {
+		panic(err)
+	}
+	defer adminClient.Close()
+
+	topicSpecs := make([]kafka.TopicSpecification, len(topics))
+	for i, topic := range topics {
+		topicSpecs[i] = kafka.TopicSpecification{
+			Topic:             topic,
+			NumPartitions:     1,
+			ReplicationFactor: 1,
+		}
+	}
+
+	results, err := adminClient.CreateTopics(ctx, topicSpecs, kafka.SetAdminOperationTimeout(5000))
+	if err != nil {
+		panic(err)
+	}
+
+	// Check if the topic creation was successful
+	for _, result := range results {
+		if result.Error.Code() != kafka.ErrNoError && result.Error.Code() != kafka.ErrTopicAlreadyExists {
+			panic(result.Error)
+		}
+	}
 }

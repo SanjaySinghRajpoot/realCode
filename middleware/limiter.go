@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	maxRequests     = 3
+	maxRequests     = 25
 	perMinutePeriod = 1 * time.Minute
 )
 

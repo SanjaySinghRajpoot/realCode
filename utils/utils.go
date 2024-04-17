@@ -20,7 +20,7 @@ func CompileCodePython(code string) (string, error) {
 }
 
 func CompileCodeGo(code string) (string, error) {
-	cmd := exec.Command("bash", "-c", "echo '"+code+"' > temp.go && go run temp.go")
+	cmd := exec.Command("bash", "-c", "echo '"+code+"' > temp.go && go run temp.go && rm temp.go")
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	err := cmd.Run()

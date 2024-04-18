@@ -1,6 +1,7 @@
 package main
 
 import (
+	"consumer/utils"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -9,10 +10,18 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/SanjaySinghRajpoot/realCode/models"
-	"github.com/SanjaySinghRajpoot/realCode/utils"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
+
+type CodeRunner struct {
+	Language string `json:"language"`
+	Code     string `json:"code"`
+}
+
+type CodeRunnerRes struct {
+	CodeResult    string `json:"codeResult"`
+	CorrelationID string `json:"correlationID"`
+}
 
 const (
 	PYTHON = "python"
@@ -22,7 +31,7 @@ const (
 func main() {
 	// Set up configuration
 	config := &kafka.ConfigMap{
-		"bootstrap.servers": "localhost:9092", // Replace with your Kafka broker address
+		"bootstrap.servers": "kafkaRealCode:19092", // Replace with your Kafka broker address
 		"group.id":          "my-group",
 		"auto.offset.reset": "earliest",
 	}
@@ -52,7 +61,7 @@ func main() {
 	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
 
 	run := true
-	var codeObj models.CodeRunner
+	var codeObj CodeRunner
 	for run {
 		select {
 		case sig := <-sigchan:
@@ -109,8 +118,8 @@ func main() {
 func InitializeProducer() (*kafka.Producer, error) {
 
 	producer, err := kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers": "localhost:9092",
-		"client.id":         "test-second",
+		"bootstrap.servers": "kafkaRealCode:19092",
+		"client.id":         "my-group",
 		"acks":              "all"})
 
 	if err != nil {

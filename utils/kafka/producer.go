@@ -62,7 +62,7 @@ func Producer(Topic string, post models.CodeRunner, producer *kafka.Producer) (s
 	// setup consumer here
 	// Set up configuration
 	config := &kafka.ConfigMap{
-		"bootstrap.servers": "localhost:9092", // Replace with your Kafka broker address
+		"bootstrap.servers": "kafkaRealCode:19092", // Replace with your Kafka broker address
 		"group.id":          "my-group",
 		"auto.offset.reset": "earliest",
 	}
@@ -128,8 +128,8 @@ func Producer(Topic string, post models.CodeRunner, producer *kafka.Producer) (s
 func InitializeProducer() (*kafka.Producer, error) {
 
 	producer, err := kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers": "localhost:9092",
-		"client.id":         "test",
+		"bootstrap.servers": "kafkaRealCode:19092",
+		"client.id":         "my-group",
 		"acks":              "all"})
 
 	if err != nil {

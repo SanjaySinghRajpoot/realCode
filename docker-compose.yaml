@@ -1,35 +1,14 @@
 version: '3.8'
 services:
-  # frontend:
-  #   container_name: frontend
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     - BACKEND_URL=http://backend:8080  
-  #   volumes:
-  #     - ./:/app
-  #   depends_on:
-  #     - backend
-  # backend: 
-  #   container_name: backend
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "8080:8080"
-  #   volumes:
-  #     - ./:/app
-  cache:
+  redisCache:
     image: redis:alpine
     restart: always
+    container_name: redisCache
     ports:
       - '6379:6379'
     command: redis-server --save 20 1 --loglevel warning --requirepass ${PASSWORD}
     volumes: 
-      - cache:/data
+      - redisCache:/data
   zooRealcode:
     image: confluentinc/cp-zookeeper:7.3.2
     hostname: zooRealcode
@@ -64,10 +43,49 @@ services:
       KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
     depends_on:
       - zooRealcode
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - BACKEND_URL=http://backend:8080  
+    volumes:
+      - ./:/app
+    depends_on:
+      - backend
+  backend: 
+    container_name: backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/app
+    depends_on:
+      - redisCache
+      - zooRealcode
+      - kafkaRealCode
+  consumer: 
+    container_name: consumer
+    build:
+      context: ./utils/kafka/consumer
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./:/app
+    depends_on:
+      - redisCache
+      - zooRealcode
+      - kafkaRealCode
 volumes:
   database_dockerizing:
   api_volume:
-  cache:
+  redisCache:
     driver: local
   main-app:
     driver: local

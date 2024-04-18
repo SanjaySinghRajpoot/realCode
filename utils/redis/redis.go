@@ -12,7 +12,7 @@ var RedisClient *redis.Client
 func SetUpRedis(password string) *redis.Client {
 
 	return redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     "redisCache:6379",
 		Password: password,
 		DB:       0,
 	})

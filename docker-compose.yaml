@@ -45,9 +45,11 @@ services:
       - zooRealcode
   frontend:
     container_name: frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: buddy22/realcode-app-frontend:latest
+    pull_policy: always
+    # build:
+    #   context: ./frontend
+    #   dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
@@ -58,6 +60,8 @@ services:
       - backend
   backend: 
     container_name: backend
+    image: buddy22/realcode-app-backend:latest
+    pull_policy: always
     build:
       context: .
       dockerfile: Dockerfile
@@ -71,9 +75,11 @@ services:
       - kafkaRealCode
   consumer: 
     container_name: consumer
-    build:
-      context: ./utils/kafka/consumer
-      dockerfile: Dockerfile
+    image: buddy22/realcode-app-consumer:latest
+    pull_policy: always
+    # build:
+    #   context: ./utils/kafka/consumer
+    #   dockerfile: Dockerfile
     ports:
       - "8081:8081"
     volumes:

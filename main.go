@@ -12,7 +12,7 @@ import (
 )
 
 func HomepageHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "Welcome to Real code"})
+	c.JSON(http.StatusOK, gin.H{"message": "Welcome to Real Code."})
 }
 
 func CORS() gin.HandlerFunc {

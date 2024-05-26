@@ -102,8 +102,6 @@ func main() {
 					sendResponse(GOLANG, codeResult, getCodeCorrelationID(e.Headers), producer)
 				}
 
-				// Send the response back to the producer
-
 			case kafka.Error:
 				fmt.Fprintf(os.Stderr, "Error: %v\n", e)
 				run = false

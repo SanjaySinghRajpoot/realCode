@@ -16,6 +16,7 @@ import (
 type CodeRunner struct {
 	Language string `json:"language"`
 	Code     string `json:"code"`
+	UserID   uint   `json:"user_id"`
 }
 
 type CodeRunnerRes struct {
@@ -87,14 +88,14 @@ func main() {
 				messageType := e.TopicPartition.Topic
 				switch *messageType {
 				case PYTHON:
-					codeResult, err := utils.CompileCodePython(codeObj.Code)
+					codeResult, err := utils.CompileCodePython(codeObj.Code, codeObj.UserID)
 					if err != nil {
 						fmt.Println(err)
 					}
 					fmt.Println(codeResult)
 					sendResponse(PYTHON, codeResult, getCodeCorrelationID(e.Headers), producer)
 				case GOLANG:
-					codeResult, err := utils.CompileCodeGo(codeObj.Code)
+					codeResult, err := utils.CompileCodeGo(codeObj.Code, codeObj.UserID)
 					if err != nil {
 						fmt.Println(err)
 					}
@@ -140,7 +141,7 @@ func getCodeCorrelationID(headers []kafka.Header) string {
 func sendResponse(topic string, codeResult, correlationID string, producer *kafka.Producer) {
 	// Convert response to bytes
 
-	println("consusmer - producer setup")
+	println("consumer - producer setup")
 
 	responseBytes, err := json.Marshal(map[string]string{
 		"codeResult":    codeResult,

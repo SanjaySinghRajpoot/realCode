@@ -16,6 +16,8 @@ func CompileHandler(c *gin.Context) {
 	var request struct {
 		Language string `json:"language"`
 		Code     string `json:"code"`
+		UserID   uint   `json:"user_id"`
+		// add user id here
 	}
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

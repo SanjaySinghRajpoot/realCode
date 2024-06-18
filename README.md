@@ -1,13 +1,13 @@
 # RealCode
 
-RealCode is a code compilation service that supports both Golang and Python. It is built using a microservices architecture to ensure scalability and maintainability. The project leverages Golang for service implementation and Apache Kafka as a messaging queue to handle communication between services.
+RealCode is a code compilation service that supports both Golang and Python. It is built using a microservices architecture to ensure scalability and maintainability. The project leverages Golang for service implementation and Apache Kafka as a messaging queue to handle communication between services
 
 ## Features
 
-- **Golang and Python Compilation**: Supports compiling and executing code written in Golang and Python.
-- **Microservices Architecture**: Modular design with separate services for different functionalities.
-- **Apache Kafka**: Used as a messaging queue to manage communication between the server and compilation services.
-- **Scalable**: Easily add more services to handle increased load without significant changes to the existing infrastructure.
+- **Golang and Python Compilation**: Supports compiling and executing code written in Golang and Python
+- **Microservices Architecture**: Modular design with separate services for different functionalities
+- **Apache Kafka**: Used as a messaging queue to manage communication between the server and compilation services
+- **Scalable**: Easily add more services to handle increased load without significant changes to the existing infrastructure
 
 ## Architecture
 

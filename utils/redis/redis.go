@@ -2,7 +2,6 @@ package redis
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -62,13 +61,11 @@ func CheckIPAddressKey(IPAddr string) (bool, error) {
 	return exists == 1, nil
 }
 
-func SetCode(code string, user_id uint) (string, error) {
+func SetCode(code string, output string) (string, error) {
 
 	ctx := context.Background()
 
-	userID := fmt.Sprintf("%d", user_id)
-
-	err := RedisClient.Set(ctx, userID, code, 30*time.Minute).Err()
+	err := RedisClient.Set(ctx, code, output, 30*time.Minute).Err()
 
 	if err != nil {
 		return "Something went wrong", err
@@ -77,12 +74,10 @@ func SetCode(code string, user_id uint) (string, error) {
 	return "", nil
 }
 
-func GetCode(user_id uint) (string, error) {
+func GetCode(code string) (string, error) {
 	ctx := context.Background()
 
-	userIDStr := fmt.Sprintf("%d", user_id)
+    codeOutput, err := RedisClient.Get(ctx, code).Result()
 
-	cnt := RedisClient.Get(ctx, userIDStr).String()
-
-	return cnt, nil
+    return codeOutput, err
 }

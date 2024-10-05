@@ -16,6 +16,7 @@ func CompileHandler(c *gin.Context) {
 		UserID   uint   `json:"user_id"`
 		// add user id here
 	}
+	
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

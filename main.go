@@ -1,12 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/SanjaySinghRajpoot/realCode/controller"
 	"github.com/SanjaySinghRajpoot/realCode/middleware"
-	"github.com/SanjaySinghRajpoot/realCode/utils/kafka"
 	"github.com/SanjaySinghRajpoot/realCode/utils/redis"
 	"github.com/gin-gonic/gin"
 )
@@ -41,13 +39,13 @@ func main() {
 	// Redis Cache Setup
 	redis.RedisClient = redis.SetUpRedis(password)
 
-	var err error
-	kafka.KafkaProducer, err = kafka.InitializeProducer()
+	// var err error
+	// kafka.KafkaProducer, err = kafka.InitializeProducer()
 
-	if err != nil {
-		fmt.Printf("Failed to create producer: %s\n", err.Error())
-		return
-	}
+	// if err != nil {
+	// 	fmt.Printf("Failed to create producer: %s\n", err.Error())
+	// 	return
+	// }
 
 	router := gin.Default()
 

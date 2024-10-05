@@ -9,85 +9,80 @@ services:
     command: redis-server --save 20 1 --loglevel warning --requirepass ${PASSWORD}
     volumes: 
       - redisCache:/data
-  zooRealcode:
-    image: confluentinc/cp-zookeeper:7.3.2
-    hostname: zooRealcode
-    container_name: zooRealcode
-    ports:
-      - "2181:2181"
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_SERVER_ID: 1
-      ZOOKEEPER_SERVERS: zooRealcode:2888:3888
-  kafkaRealCode:
-    image: confluentinc/cp-kafka:7.3.2
-    hostname: kafkaRealCode
-    container_name: kafkaRealCode
-    ports:
-      - "9092:9092"
-      - "29092:29092"
-      - "9999:9999"
-    environment:
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafkaRealCode:19092,EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092,DOCKER://host.docker.internal:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,DOCKER:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_ZOOKEEPER_CONNECT: "zooRealcode:2181"
-      KAFKA_BROKER_ID: 1
-      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_JMX_PORT: 9999
-      KAFKA_JMX_HOSTNAME: ${DOCKER_HOST_IP:-127.0.0.1}
-      KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
-      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
-    depends_on:
-      - zooRealcode
-  frontend:
-    container_name: frontend
-    image: buddy22/realcode-app-frontend:latest
-    pull_policy: always
-    # build:
-    #   context: ./frontend
-    #   dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    environment:
-      - BACKEND_URL=http://backend:8080  
-    volumes:
-      - ./:/app
-    depends_on:
-      - backend
-  backend: 
-    container_name: backend
-    image: buddy22/realcode-app-backend:latest
-    pull_policy: always
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./:/app
-    depends_on:
-      - redisCache
-      - zooRealcode
-      - kafkaRealCode
-  consumer: 
-    container_name: consumer
-    image: buddy22/realcode-app-consumer:latest
-    pull_policy: always
-    # build:
-    #   context: ./utils/kafka/consumer
-    #   dockerfile: Dockerfile
-    ports:
-      - "8081:8081"
-    volumes:
-      - ./:/app
-    depends_on:
-      - redisCache
-      - zooRealcode
-      - kafkaRealCode
+  # zookeeper:
+  #   image: wurstmeister/zookeeper
+  #   container_name: zookeeper
+  #   restart: always
+  #   ports:
+  #     - "2181:2181"
+  # kafka:
+  #   image: wurstmeister/kafka
+  #   container_name: kafka
+  #   restart: always
+  #   ports:
+  #     - "9092:9092"
+  #     - "1099:1099"
+  #   environment:
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+  #     KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_ADVERTISED_HOST_NAME: kafka
+  #     JMX_PORT: 1099
+  #   depends_on:
+  #     - zookeeper
+  # kafka_manager:
+  #   image: hlebalbau/kafka-manager:stable
+  #   restart: always
+  #   ports:
+  #     - "9000:9000"
+  #   environment:
+  #     ZK_HOSTS: zookeeper:2181
+  #   command: -Dpidfile.path=/dev/null
+  # frontend:
+  #   container_name: frontend
+  #   image: buddy22/realcode-app-frontend:latest
+  #   pull_policy: always
+  #   # build:
+  #   #   context: ./frontend
+  #   #   dockerfile: Dockerfile
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - BACKEND_URL=http://backend:8080  
+  #   volumes:
+  #     - ./:/app
+  #   depends_on:
+  #     - backend
+  # backend: 
+  #   container_name: backend
+  #   image: buddy22/realcode-app-backend:latest
+  #   pull_policy: always
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - ./:/app
+  #   depends_on:
+  #     - redisCache
+  #     - zooRealcode
+  #     - kafkaRealCode
+  # consumer: 
+  #   container_name: consumer
+  #   image: buddy22/realcode-app-consumer:latest
+  #   pull_policy: always
+  #   # build:
+  #   #   context: ./utils/kafka/consumer
+  #   #   dockerfile: Dockerfile
+  #   ports:
+  #     - "8081:8081"
+  #   volumes:
+  #     - ./:/app
+  #   depends_on:
+  #     - redisCache
+  #     - zooRealcode
+  #     - kafkaRealCode
 volumes:
   database_dockerizing:
   api_volume:

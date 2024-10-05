@@ -1,12 +1,9 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/SanjaySinghRajpoot/realCode/utils"
-	"github.com/SanjaySinghRajpoot/realCode/utils/formatError"
-	"github.com/SanjaySinghRajpoot/realCode/utils/kafka"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,33 +23,55 @@ func CompileHandler(c *gin.Context) {
 
 	// Check what is the language of the code and call the appropitrate service
 	var outputResult string
+	var err error
+
 	if request.Language == "python" {
 
-		msg, err := kafka.Producer("python", request, kafka.KafkaProducer)
-		if err != nil {
-			fmt.Println(msg)
-			formatError.InternalServerError(c, err)
-			return
-		}
-
-		outputResult = msg
-	} else if request.Language == "golang" {
-
-		msg, err := kafka.Producer("golang", request, kafka.KafkaProducer)
-		if err != nil {
-			fmt.Println(msg)
-			formatError.InternalServerError(c, err)
-			return
-		}
-
-		output, err := utils.CompileCodeGo(request.Code)
+		outputResult, err = utils.CompileCodePython(request.Code, request.UserID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-
-		outputResult = output
 	}
+
+	if request.Language == "golang" {
+
+		outputResult, err = utils.CompileCodeGo(request.Code, request.UserID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	}
+
+	// here we will add the code to comile the code
+
+	// if request.Language == "python" {
+
+	// 	msg, err := kafka.Producer("python", request, kafka.KafkaProducer)
+	// 	if err != nil {
+	// 		fmt.Println(msg)
+	// 		formatError.InternalServerError(c, err)
+	// 		return
+	// 	}
+
+	// 	outputResult = msg
+	// } else if request.Language == "golang" {
+
+	// 	msg, err := kafka.Producer("golang", request, kafka.KafkaProducer)
+	// 	if err != nil {
+	// 		fmt.Println(msg)
+	// 		formatError.InternalServerError(c, err)
+	// 		return
+	// 	}
+
+	// 	output, err := utils.CompileCodeGo(request.Code)
+	// 	if err != nil {
+	// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// 		return
+	// 	}
+
+	// 	outputResult = output
+	// }
 
 	c.JSON(http.StatusOK, gin.H{"output": outputResult})
 }

@@ -6,12 +6,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/SanjaySinghRajpoot/realCode/utils/redis"
+	"github.com/SanjaySinghRajpoot/realCode/utils/localredis"
 	"github.com/gin-gonic/gin"
 )
 
 const (
-	maxRequests     = 25
+	maxRequests     = 25000
 	perMinutePeriod = 1 * time.Minute
 )
 
@@ -24,7 +24,7 @@ func RateLimiter(context *gin.Context) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	isPresent, _ := redis.CheckIPAddressKey(ip)
+	isPresent, _ := localredis.CheckIPAddressKey(ip)
 
 	fmt.Println(isPresent)
 
@@ -33,7 +33,7 @@ func RateLimiter(context *gin.Context) {
 	if isPresent {
 		// get from redis cache
 
-		getCount, err := redis.GetIPAddress(ip)
+		getCount, err := localredis.GetIPAddress(ip)
 
 		if err != nil {
 			fmt.Printf("Failed to Get the Redis Cache: %d", getCount)
@@ -57,7 +57,7 @@ func RateLimiter(context *gin.Context) {
 
 	fmt.Println(ip)
 
-	msg, err := redis.SetIPAddress(ip, count)
+	msg, err := localredis.SetIPAddress(ip, count)
 	if err != nil {
 		fmt.Printf("Failed to Set the Redis Cache: %s", msg)
 
@@ -70,7 +70,7 @@ func RateLimiter(context *gin.Context) {
 		mutex.Lock()
 		defer mutex.Unlock()
 
-		count, err := redis.GetIPAddress(ip)
+		count, err := localredis.GetIPAddress(ip)
 
 		if err != nil {
 			fmt.Printf("Failed to Get the Redis Cache CRON: %d", count)
@@ -82,7 +82,7 @@ func RateLimiter(context *gin.Context) {
 
 		count = count - 1
 
-		msg, err := redis.SetIPAddress(ip, count)
+		msg, err := localredis.SetIPAddress(ip, count)
 		if err != nil {
 			fmt.Printf("Failed to Set the Redis Cache CRON: %s", msg)
 

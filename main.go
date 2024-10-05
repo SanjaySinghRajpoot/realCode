@@ -5,7 +5,7 @@ import (
 
 	"github.com/SanjaySinghRajpoot/realCode/controller"
 	"github.com/SanjaySinghRajpoot/realCode/middleware"
-	"github.com/SanjaySinghRajpoot/realCode/utils/redis"
+	"github.com/SanjaySinghRajpoot/realCode/utils/localredis"
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,7 +37,7 @@ func main() {
 	password := "12345678"
 
 	// Redis Cache Setup
-	redis.RedisClient = redis.SetUpRedis(password)
+	localredis.RedisClient = localredis.SetUpRedis(password)
 
 	// var err error
 	// kafka.KafkaProducer, err = kafka.InitializeProducer()

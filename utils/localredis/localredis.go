@@ -1,4 +1,4 @@
-package redis
+package localredis
 
 import (
 	"context"
@@ -61,23 +61,26 @@ func CheckIPAddressKey(IPAddr string) (bool, error) {
 	return exists == 1, nil
 }
 
-func SetCode(code string, output string) (string, error) {
+// SetCode sets a value in Redis with the given key
+func SetCode(key string, value string) error {
 
 	ctx := context.Background()
 
-	err := RedisClient.Set(ctx, code, output, 30*time.Minute).Err()
-
+	err := RedisClient.Set(ctx, key, value, 0).Err()
 	if err != nil {
-		return "Something went wrong", err
+		return err
 	}
-
-	return "", nil
+	return nil
 }
 
-func GetCode(code string) (string, error) {
+// GetCode retrieves a value from Redis with the given key
+func GetCode(key string) (string, error) {
+
 	ctx := context.Background()
 
-    codeOutput, err := RedisClient.Get(ctx, code).Result()
-
-    return codeOutput, err
+	val, err := RedisClient.Get(ctx, key).Result()
+	if err != nil {
+		return "", err
+	}
+	return val, nil
 }

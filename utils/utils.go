@@ -5,36 +5,37 @@ import (
 	"fmt"
 	"os/exec"
 
-	"github.com/SanjaySinghRajpoot/realCode/utils/redis"
+	"github.com/SanjaySinghRajpoot/realCode/utils/localredis"
+	"github.com/go-redis/redis/v8"
 )
 
 // let's try to optimize this part if possible
 func CompileCodePython(code string, userid uint) (string, error) {
 
 	// apply a function to get the code from the redis cache
-	codeOutput, _ := redis.GetCode(code)
+	codeOutput, err := localredis.GetCode(code)
 
-	print("Code Output: ", codeOutput)
+	if err == redis.Nil {
+		return codeOutput, nil
+	}
 
-	// fmt.Printf("Code Output: %s", codeOutput)
-
-	// if codeOutput != "" {
-	// 	return codeOutput, nil
-	// }
+	if codeOutput != "" {
+		return codeOutput, nil
+	}
 
 	cmd := exec.Command("bash", "-c", "echo '"+code+"' | python3 -c 'import sys; exec(sys.stdin.read())'")
 	var out bytes.Buffer
 	cmd.Stdout = &out
-	err := cmd.Run()
+	err = cmd.Run()
 	if err != nil {
 		errRes := fmt.Sprintf("error: %s", err.Error())
 		return errRes, err
 	}
 
 	// here we will implement redis cache for code
-	msg, err := redis.SetCode(code, out.String())
+	err = localredis.SetCode(code, out.String())
 	if err != nil {
-		fmt.Printf("Failed to Set the Redis Cache CRON: %s", msg)
+		fmt.Printf("Failed to Set the Redis Cache CRON: %s", err)
 
 		errRes := fmt.Sprintf("error: %s", err.Error())
 		return errRes, err
@@ -54,13 +55,13 @@ func CompileCodeGo(code string, userid uint) (string, error) {
 	}
 
 	// here we will implement redis cache for code
-	msg, err := redis.SetCode(code, out.String())
-	if err != nil {
-		fmt.Printf("Failed to Set the Redis Cache CRON: %s", msg)
+	// msg, err := redis.SetCode(code, out.String())
+	// if err != nil {
+	// 	fmt.Printf("Failed to Set the Redis Cache CRON: %s", msg)
 
-		errRes := fmt.Sprintf("error: %s", err.Error())
-		return errRes, err
-	}
+	// 	errRes := fmt.Sprintf("error: %s", err.Error())
+	// 	return errRes, err
+	// }
 
 	return out.String(), nil
 }

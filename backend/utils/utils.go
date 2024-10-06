@@ -15,11 +15,7 @@ func CompileCodePython(code string, userid uint) (string, error) {
 	// apply a function to get the code from the redis cache
 	codeOutput, err := localredis.GetCode(code)
 
-	if err == redis.Nil {
-		return codeOutput, nil
-	}
-
-	if codeOutput != "" {
+	if codeOutput != "" && err != redis.Nil {
 		return codeOutput, nil
 	}
 
@@ -49,13 +45,7 @@ func CompileCodeGo(code string, userid uint) (string, error) {
 	// apply a function to get the code from the redis cache
 	codeOutput, err := localredis.GetCode(code)
 
-	if err == redis.Nil {
-		print("----4-----")
-		return codeOutput, nil
-	}
-
-	if codeOutput != "" {
-		print("----3-----")
+	if codeOutput != "" && err != redis.Nil {
 		return codeOutput, nil
 	}
 	

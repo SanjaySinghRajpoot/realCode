@@ -18,6 +18,7 @@ services:
     ports:
       - "3000:3000"
     environment:
+    # BACKEND_URL=http://backend:8080
       - BACKEND_URL=http://backend:8080  
     volumes:
       - ./:/app
@@ -31,8 +32,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
-    volumes:
-      - ./:/app
+    # volumes:
+    #   - ./:/app
     depends_on:
       - redisCache
 volumes:

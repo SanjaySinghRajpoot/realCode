@@ -37,6 +37,3 @@ Contributions are welcome! Please follow these steps to contribute:
 3. Make your changes and commit them (`git commit -m 'Add some feature'`).
 4. Push to the branch (`git push origin feature/your-feature`).
 5. Create a new Pull Request.
-
-
-google api key AIzaSyAaeS6qlgK5ZLsM8DLHOJ1sH0g10ozNR3o

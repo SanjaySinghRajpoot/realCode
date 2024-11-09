@@ -1,49 +1,21 @@
 version: '3.8'
 services:
-  redisCache:
-    image: redis:alpine
-    restart: always
-    container_name: redisCache
-    ports:
-      - '6379:6379'
-    command: redis-server --save 20 1 --loglevel warning --requirepass ${PASSWORD}
-    volumes: 
-      - redisCache:/data
   frontend:
     container_name: frontend
-    pull_policy: always
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    build: ./frontend
     ports:
       - "3000:3000"
-    environment:
-    # BACKEND_URL=http://backend:8080
-      - BACKEND_URL=http://backend:8080  
-    volumes:
-      - ./:/app
     depends_on:
       - backend
-  backend: 
+    environment:
+      - BACKEND_URL=http://backend:8000/code
+  backend:
     container_name: backend
-    pull_policy: always
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    build: ./backend_python
+    volumes:
+      - ./backend_python:/app/backend
     ports:
-      - "8080:8080"
-    # volumes:
-    #   - ./:/app
-    depends_on:
-      - redisCache
-volumes:
-  database_dockerizing:
-  api_volume:
-  redisCache:
-    driver: local
-  main-app:
-    driver: local
-
-networks:
-  fullstack:
-    driver: bridge
+      - "8000:8000"
+    stdin_open: true
+    tty: true
+    command: python3 manage.py runserver 0.0.0.0:8000

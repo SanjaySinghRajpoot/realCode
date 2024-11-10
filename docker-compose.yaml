@@ -11,9 +11,9 @@ services:
       - BACKEND_URL=http://backend:8000/code
   backend:
     container_name: backend
-    build: ./backend_python
+    build: ./backend
     volumes:
-      - ./backend_python:/app/backend
+      - ./backend:/app/backend
     ports:
       - "8000:8000"
     stdin_open: true

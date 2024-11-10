@@ -1,20 +1,24 @@
 import { useState } from "react";
 import { Box, Button, Text, useToast } from "@chakra-ui/react";
 import { executeCode } from "../api";
+import ReactMarkdown from "react-markdown";
 
 const Output = ({ editorRef, language }) => {
   const toast = useToast();
   const [output, setOutput] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [feedback, setFeedback] = useState(null);
 
   const runCode = async () => {
     const sourceCode = editorRef.current.getValue();
     if (!sourceCode) return;
     try {
       setIsLoading(true);
-      const { output } = await executeCode(language, sourceCode);
+      const { output, feedback } = await executeCode(language, sourceCode);
       setOutput(output.split("\n"));
+      const feedbackText = feedback.content.parts[0].text;
+      setFeedback(feedbackText);
       // check for output error code
       setIsError(false)
       // data.stderr ? setIsError(true) : setIsError(false);
@@ -33,9 +37,9 @@ const Output = ({ editorRef, language }) => {
 
   return (
     <Box w="50%">
-      <Text mb={2} fontSize="lg">
+      {/* <Text mb={2} fontSize="lg">
         Output
-      </Text>
+      </Text> */}
       <Button
         variant="outline"
         colorScheme="green"
@@ -46,16 +50,34 @@ const Output = ({ editorRef, language }) => {
         Run Code
       </Button>
       <Box
-        height="75vh"
+        height="38vh"
         p={2}
         color={isError ? "red.400" : ""}
         border="1px solid"
         borderRadius={4}
         borderColor={isError ? "red.500" : "#333"}
+        overflowY="auto" 
       >
         {output
           ? output.map((line, i) => <Text key={i}>{line}</Text>)
           : 'Click "Run Code" to see the output here'}
+      </Box>
+
+      <Text mb={2} mt={4} fontSize="lg">
+        Code Analysis
+      </Text>
+      <Box
+        height="28vh"
+        p={2}
+        color={isError ? "red.400" : ""}
+        border="1px solid"
+        borderRadius={4}
+        borderColor={isError ? "red.500" : "#333"}
+        overflowY="auto" 
+      >
+        {feedback
+          ? <ReactMarkdown>{feedback}</ReactMarkdown>
+          : 'Code analysis will be displayed here'}
       </Box>
     </Box>
   );

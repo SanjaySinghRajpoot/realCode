@@ -32,6 +32,59 @@ def generate_content(code):
         return response.json()
     except Exception as e:
         return {'error': str(e)}
+    
+def compile_and_run_golang(code_txt):
+    """Compiles and runs Golang code, returning output and feedback.
+
+    Args:
+        code_txt (str): The Golang code to compile and execute.
+
+    Returns:
+        dict: A dictionary containing the following keys:
+            output (str, optional): The standard output of the compiled and executed code.
+            error (str, optional): The standard error stream of the compilation or execution process.
+            feedback (dict, optional): Feedback generated from the code (implementation-specific).
+    """
+
+    # Create a temporary file to store the Golang code
+    with open("temp_golang.go", "w") as f:
+        f.write(code_txt)
+
+    # Compile the Golang code
+    try:
+        compilation_process = subprocess.run(
+            ["go", "build", "-o", "temp_golang", "temp_golang.go"],
+            check=True,
+            capture_output=True,
+            text=True,  # Ensure text output for easier handling
+        )
+    except subprocess.CalledProcessError as e:
+        return {"error": e.stderr}  # Return compilation error
+
+    # Execute the compiled program
+    try:
+        execution_process = subprocess.run(
+            ["./temp_golang"],
+            capture_output=True,
+            text=True,  # Ensure text output
+            timeout=5,  # Set a timeout to prevent infinite execution (adjust as needed)
+        )
+    except subprocess.CalledProcessError as e:
+        return {"error": e.stderr}  # Return execution error
+    except subprocess.TimeoutExpired as e:
+        return {"error": "Golang program execution timed out"}
+
+    # Remove the temporary file
+    try:
+        subprocess.run(["rm", "temp_golang.go", "temp_golang"], check=True)
+    except subprocess.CalledProcessError:
+        pass  # Ignore errors during cleanup
+
+    # Process the output and generate feedback (implementation-specific)
+    output = execution_process.stdout
+    feedback = generate_content(code_txt)  # Replace with your feedback generation logic
+
+    return {"output": output, "feedback": feedback.get('candidates')[0] if feedback else None}
 
 @csrf_exempt 
 def compile_code(request):
@@ -44,7 +97,7 @@ def compile_code(request):
 
         result = cache.get(code_txt)
         if result:
-            return JsonResponse({'output': result})
+            return JsonResponse(result)
 
         if language == 'python':
             try:
@@ -67,6 +120,13 @@ def compile_code(request):
             except subprocess.CalledProcessError as e:
                 # Return the error to the user
                 return JsonResponse({'error': e.stderr}, status=400)
+            
+        elif language == 'golang':
+            result = compile_and_run_golang(code_txt)
+
+            cache.set(code_txt, result, timeout=60)
+
+            return JsonResponse(result, status=400 if 'error' in result else 200)
         
         # Handle other languages if needed
         return JsonResponse({'error': 'Unsupported language'}, status=400)

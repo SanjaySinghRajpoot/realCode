@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
+from django.http import HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
 import subprocess
@@ -17,6 +18,15 @@ api_key = os.getenv('google_api_key')
 def homepage(request):
     return HttpResponse("Welcome to Real code!!")
 
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+
+    return ip
+
 def generate_content(code):
     try: 
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
@@ -29,9 +39,11 @@ def generate_content(code):
             }]
         }
         response = requests.post(url, headers=headers, json=data)
-        return response.json()
+        if response.status_code != 200:
+            return False, {'error': response.text}
+        return True, response.json()
     except Exception as e:
-        return {'error': str(e)}
+        return False, {'error': str(e)}
     
 def compile_and_run_golang(code_txt):
     """Compiles and runs Golang code, returning output and feedback.
@@ -94,6 +106,13 @@ def compile_code(request):
         code_txt = data['code']
         language = data['language']
 
+        client_ip = get_client_ip(request)
+        rate_limit_key = f"rate_limit_{client_ip}"
+        current_requests = cache.get(rate_limit_key, 0)
+
+        if current_requests >= 10:
+            return HttpResponseForbidden("Rate limit exceeded")
+
 
         result = cache.get(code_txt)
         if result:
@@ -109,9 +128,11 @@ def compile_code(request):
                     check=True
                 )
 
-                feedback = generate_content(code_txt)
+                is_success, msg = generate_content(code_txt)
+                if not is_success:
+                    return JsonResponse(msg, status=400)
 
-                res = feedback.get('candidates')
+                res = msg.get('candidates')
 
                 cache.set(code_txt, {'output': result.stdout, 'feedback': res[0]}, timeout=60)
 

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 ALLOWED_HOSTS=['*']
 CORS_ALLOW_HEADERS = ['*']
@@ -135,10 +136,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',  # Use the appropriate Redis server URL
+        'LOCATION': os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1'),  # Default to local Redis if env var is not set
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'PASSWORD': '12345678'
+            'PASSWORD': os.getenv('REDIS_PASSWORD', '12345678')  # Default password if env var is not set
         }
     }
 }

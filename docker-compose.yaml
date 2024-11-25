@@ -1,24 +1,27 @@
 version: '3.8'
 services:
-  # frontend:
-  #   container_name: frontend
-  #   build: ./frontend
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - backend
-  #   environment:
-  #     - BACKEND_URL=http://backend:8000/code
-  # backend:
-  #   container_name: backend
-  #   build: ./backend
-  #   volumes:
-  #     - ./backend:/app/backend
-  #   ports:
-  #     - "8000:8000"
-  #   stdin_open: true
-  #   tty: true
-  #   command: python3 manage.py runserver 0.0.0.0:8000
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    ports:
+      - "3000:3000" 
+    depends_on:
+      - backend
+    environment:
+      - BACKEND_URL=http://backend:8000/code
+  backend:
+    container_name: backend
+    build: ./backend
+    volumes:
+      - ./backend:/app/backend
+    environment:
+      - REDIS_URL=redis://cache:6379/1
+      - REDIS_PASSWORD=12345678
+    ports:
+      - "8000:8000"
+    stdin_open: true
+    tty: true
+    command: python3 manage.py runserver 0.0.0.0:8000
   cache:
     image: redis:alpine
     container_name: cache
@@ -28,7 +31,22 @@ services:
     command: redis-server --save 20 1 --loglevel warning --requirepass ${PASSWORD}
     volumes: 
       - cache:/data
+  nginx:
+    build:
+      context: ./nginx
+    volumes:
+      - static:/static
+      - ./frontend:/var/www/frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
 
 volumes:
+  static:
+  frontend:
   cache:
     driver: local
+    
+

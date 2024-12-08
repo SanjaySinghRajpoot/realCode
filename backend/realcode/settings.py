@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'realcode_app',
+    # 'celery', 
+     'realcode_app'
 ]
 
 MIDDLEWARE = [
@@ -144,3 +145,4 @@ CACHES = {
     }
 }
 
+CELERY_BROKER_URL = os.environ.get('RABBITMQ_URL', 'amqp://guest:guest@localhost:5672/')

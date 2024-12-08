@@ -42,9 +42,40 @@ services:
     depends_on:
       - backend
       - frontend
+  # rabbitmq:
+  #   image: rabbitmq:3-management-alpine
+  #   container_name: 'rabbitmq'
+  #   ports:
+  #       - 5672:5672
+  #       - 15672:15672
+  #   volumes:
+  #       - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+  #       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+
+  # celery:
+  #   build: ./backend
+  #   command: celery -A realcode worker -l info
+  #   volumes:
+  #     - ./backend/:/code
+  #   depends_on:
+  #     - rabbitmq
+  #   environment:
+  #     - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
+
+  # celery-beat:
+  #   build: ./backend
+  #   command: celery -A realcode beat -l info
+  #   volumes:
+  #     - ./backend/:/code
+  #   depends_on:
+  #     - rabbitmq
+  #   environment:
+  #     - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672//
 
 volumes:
   static:
+  # rabbitmq_data:
+  #   driver: local
   frontend:
   cache:
     driver: local

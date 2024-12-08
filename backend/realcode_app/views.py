@@ -9,6 +9,7 @@ import json
 import os
 import requests
 from dotenv import load_dotenv
+# from .tasks import add
 
 load_dotenv()
 
@@ -112,6 +113,8 @@ def compile_code(request):
 
         if current_requests >= 10:
             return HttpResponseForbidden("Rate limit exceeded")
+        
+        # add.delay(1, 2)
 
 
         result = cache.get(code_txt)
